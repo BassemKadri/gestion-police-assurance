@@ -1,11 +1,11 @@
 package com.tinubu.assurance.api;
 
+import com.tinubu.assurance.api.dto.InsurancePolicyCreateOrUpdateRespDto;
 import com.tinubu.assurance.domain.exception.InsurancePolicyNotFoundException;
 import com.tinubu.assurance.api.dto.InsurancePolicyCreateReqDto;
-import com.tinubu.assurance.api.dto.InsurancePolicyCreateRespDto;
 import com.tinubu.assurance.api.dto.InsurancePolicyUpdateReqDto;
 import com.tinubu.assurance.api.mapper.InsurancePolicyCreateCommandMapper;
-import com.tinubu.assurance.api.mapper.InsurancePolicyCreateRespDtoMapper;
+import com.tinubu.assurance.api.mapper.InsurancePolicyCreateOrUpdateRespDtoMapper;
 import com.tinubu.assurance.api.mapper.InsurancePolicyUpdateCommandMapper;
 import com.tinubu.assurance.application.service.InsurancePolicyService;
 import com.tinubu.assurance.domain.command.InsurancePolicyCreateCommand;
@@ -19,6 +19,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -48,10 +51,15 @@ public class InsurancePolicyController {
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     @PostMapping
-    public InsurancePolicyCreateRespDto createInsurancePolicies(@RequestBody @Valid final InsurancePolicyCreateReqDto insurancePolicyCreateReqDto) {
+    public ResponseEntity<InsurancePolicyCreateOrUpdateRespDto> createInsurancePolicies(@RequestBody @Valid final InsurancePolicyCreateReqDto insurancePolicyCreateReqDto) {
         InsurancePolicyCreateCommand command = InsurancePolicyCreateCommandMapper.INSTANCE.fromInsurancePolicyCreateReqDto(insurancePolicyCreateReqDto);
         InsurancePolicy insurancePolicy = insurancePolicyService.createInsurancePolicy(command);
-        return InsurancePolicyCreateRespDtoMapper.INSTANCE.fromInsurancePolicy(insurancePolicy);
+        InsurancePolicyCreateOrUpdateRespDto response =
+                InsurancePolicyCreateOrUpdateRespDtoMapper.INSTANCE.fromInsurancePolicy(insurancePolicy);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 
     /**
@@ -69,10 +77,14 @@ public class InsurancePolicyController {
             @ApiResponse(responseCode = "404", description = "Insurance Policy not found")
     })
     @PutMapping
-    public InsurancePolicyCreateRespDto updateInsurancePolicy(@RequestBody @Valid final InsurancePolicyUpdateReqDto insurancePolicyUpdateReqDto) {
+    public ResponseEntity<InsurancePolicyCreateOrUpdateRespDto> updateInsurancePolicy(@RequestBody @Valid final InsurancePolicyUpdateReqDto insurancePolicyUpdateReqDto) {
         InsurancePolicyUpdateCommand command = InsurancePolicyUpdateCommandMapper.INSTANCE.fromInsurancePolicyUpdateReqDto(insurancePolicyUpdateReqDto);
         InsurancePolicy updatedPolicy = insurancePolicyService.updateInsurancePolicy(command);
-        return InsurancePolicyCreateRespDtoMapper.INSTANCE.fromInsurancePolicy(updatedPolicy);
+        InsurancePolicyCreateOrUpdateRespDto response =
+                InsurancePolicyCreateOrUpdateRespDtoMapper.INSTANCE.fromInsurancePolicy(updatedPolicy);
+
+        return ResponseEntity
+                .ok(response);
     }
 
     /**
@@ -88,24 +100,34 @@ public class InsurancePolicyController {
             @ApiResponse(responseCode = "404", description = "Insurance Policy not found")
     })
     @GetMapping("/{id}")
-    public InsurancePolicyCreateRespDto getInsurancePolicyById(@PathVariable @NotNull final UUID id) {
+    public ResponseEntity<InsurancePolicyCreateOrUpdateRespDto> getInsurancePolicyById(@PathVariable @NotNull final UUID id) {
         InsurancePolicy policy = insurancePolicyService.getInsurancePolicy(id);
-        return InsurancePolicyCreateRespDtoMapper.INSTANCE.fromInsurancePolicy(policy);
+        InsurancePolicyCreateOrUpdateRespDto response = InsurancePolicyCreateOrUpdateRespDtoMapper.INSTANCE.fromInsurancePolicy(policy);
+
+        return ResponseEntity
+                .ok(response);
     }
 
     /**
      * Retrieves a paginated list of all insurance policies.
      *
      * @param pageable the pagination information (page, size, sort)
-     * @return a paged list of insurance policy response DTOs
+     * @return a list of insurance policy response DTOs
      * Exp call : localhost:8080/api/insurance-policies?page=2&size=3&sort=name,asc
      */
     @Operation(summary = "List all insurance policies", description = "Returns a paginated list of insurance policies.")
     @ApiResponse(responseCode = "200", description = "List of insurance policies")
     @GetMapping
-    public Page<InsurancePolicyCreateRespDto> listInsurancePolicies(@NotNull final Pageable pageable) {
-        return insurancePolicyService.listInsurancePolicies(pageable)
-                .map(InsurancePolicyCreateRespDtoMapper.INSTANCE::fromInsurancePolicy);
+    public ResponseEntity<List<InsurancePolicyCreateOrUpdateRespDto>> listInsurancePolicies(@NotNull final Pageable pageable) {
+        Page<InsurancePolicy> policiesPage = insurancePolicyService.listInsurancePolicies(pageable);
+
+        List<InsurancePolicyCreateOrUpdateRespDto> responseList =
+                policiesPage
+                        .map(InsurancePolicyCreateOrUpdateRespDtoMapper.INSTANCE::fromInsurancePolicy)
+                        .getContent();
+
+        return ResponseEntity
+                .ok(responseList);
     }
 
 }

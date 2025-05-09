@@ -61,7 +61,7 @@ class InsurancePolicyControllerIT {
         mockMvc.perform(post("/api/insurance-policies")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.name").value("Assurance Samsung"))
                 .andExpect(jsonPath("$.status").value("ACTIVE"));
@@ -268,7 +268,7 @@ class InsurancePolicyControllerIT {
     }
 
     @Test
-    void Should_ReturnPaginatedInsurancePolicies_When_Requested() throws Exception {
+    void Should_ReturnListInsurancePolicies_When_Requested() throws Exception {
         // Given : insérer 3 insurance policies en base
         List<InsurancePolicyEntity> policies = List.of(
                 InsurancePolicyEntity.builder()
@@ -305,12 +305,8 @@ class InsurancePolicyControllerIT {
                         .param("size", "2")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.content.length()").value(2))
-                .andExpect(jsonPath("$.totalElements").value(3))
-                .andExpect(jsonPath("$.totalPages").value(2))
-                .andExpect(jsonPath("$.size").value(2))
-                .andExpect(jsonPath("$.number").value(0));
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].name").value("Policy A"));
     }
 
 

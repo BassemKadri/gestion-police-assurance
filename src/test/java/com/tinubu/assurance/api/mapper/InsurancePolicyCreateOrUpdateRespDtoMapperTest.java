@@ -1,6 +1,6 @@
 package com.tinubu.assurance.api.mapper;
 
-import com.tinubu.assurance.api.dto.InsurancePolicyCreateRespDto;
+import com.tinubu.assurance.api.dto.InsurancePolicyCreateOrUpdateRespDto;
 import com.tinubu.assurance.domain.model.InsurancePolicy;
 import com.tinubu.assurance.domain.model.PolicyStatus;
 import org.junit.jupiter.api.Test;
@@ -12,9 +12,9 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class InsurancePolicyCreateRespDtoMapperTest {
+public class InsurancePolicyCreateOrUpdateRespDtoMapperTest {
 
-    private final InsurancePolicyCreateRespDtoMapper mapper = Mappers.getMapper(InsurancePolicyCreateRespDtoMapper.class);
+    private final InsurancePolicyCreateOrUpdateRespDtoMapper mapper = Mappers.getMapper(InsurancePolicyCreateOrUpdateRespDtoMapper.class);
 
     @Test
     void Should_MapInsurancePolicyCreateRespDto_When_GivenInsurancePolicy() {
@@ -30,7 +30,7 @@ public class InsurancePolicyCreateRespDtoMapperTest {
                 .build();
 
         // When
-        InsurancePolicyCreateRespDto dto = mapper.fromInsurancePolicy(domain);
+        InsurancePolicyCreateOrUpdateRespDto dto = mapper.fromInsurancePolicy(domain);
 
         // Then
         assertThat(dto).isNotNull();

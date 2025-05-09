@@ -14,7 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class InsurancePolicyCreateRespDto {
+public class InsurancePolicyCreateOrUpdateRespDto {
     UUID id;
     String name;
     PolicyStatusDto status;
