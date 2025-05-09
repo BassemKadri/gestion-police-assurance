@@ -30,6 +30,11 @@ It allows users to **create**, **read**, **update**, and **list (with pagination
 
 ---
 
+## 🧱 Hexagonal Architecture
+
+![Hexagonal Architecture](doc/hexagonal-architecture.png)
+----
+
 ## 🚀 Getting Started
 
 ### ✅ Prerequisites
